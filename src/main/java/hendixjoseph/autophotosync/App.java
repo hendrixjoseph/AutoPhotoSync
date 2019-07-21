@@ -27,7 +27,14 @@ import com.google.common.collect.ImmutableList;
 import com.google.photos.library.v1.PhotosLibraryClient;
 import com.google.photos.library.v1.PhotosLibrarySettings;
 import com.google.photos.library.v1.internal.InternalPhotosLibraryClient.ListAlbumsPagedResponse;
+import com.google.photos.library.v1.internal.InternalPhotosLibraryClient.SearchMediaItemsPage;
+import com.google.photos.library.v1.internal.InternalPhotosLibraryClient.SearchMediaItemsPagedResponse;
+import com.google.photos.library.v1.proto.DateFilter;
+import com.google.photos.library.v1.proto.Filters;
 import com.google.photos.types.proto.Album;
+import com.google.photos.types.proto.DateRange;
+import com.google.photos.types.proto.MediaItem;
+import com.google.type.Date;
 
 public class App {
 	private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
@@ -42,14 +49,27 @@ public class App {
 		PhotosLibrarySettings settings =
 		     PhotosLibrarySettings.newBuilder()
 		    .setCredentialsProvider(
-		        FixedCredentialsProvider.create(getCredentials("C:\\Users\\hendr\\Desktop\\client_secret_778040209018-7uedralrtqesl99p0hqo1u8dfmk87hhv.apps.googleusercontent.com.json", REQUIRED_SCOPES)))
+		        FixedCredentialsProvider.create(getCredentials("C:\\Users\\hendr\\Downloads\\client_secret_778040209018-7uedralrtqesl99p0hqo1u8dfmk87hhv.apps.googleusercontent.com.json", REQUIRED_SCOPES)))
 		    .build();
 
 		try (PhotosLibraryClient photosLibraryClient =
 		    PhotosLibraryClient.initialize(settings)) {
-
-		    // Create a new Album  with at title
-		    ListAlbumsPagedResponse response = photosLibraryClient.listAlbums();
+			Date start = Date.newBuilder().setMonth(7).setDay(10).setYear(2019).build();
+			
+			DateRange dateRange = DateRange.newBuilder().setStartDate(start).build();
+			DateFilter dateFilter = Filters.newBuilder().getDateFilterBuilder().addRanges(dateRange).build();
+			Filters filters = Filters.newBuilder().setDateFilter(dateFilter).build();
+			
+			SearchMediaItemsPagedResponse response = photosLibraryClient.searchMediaItems(filters);
+			SearchMediaItemsPage page = response.getPage();
+			if (page.getPageElementCount() > 0) {
+				MediaItem item = page.getValues().iterator().next();
+				System.out.println(item.getBaseUrl());
+				System.out.println(item.getProductUrl());
+				System.out.println(item.getFilename());
+			} else {
+				System.out.println("oops");
+			}
 
 		} catch (ApiException e) {
 		    e.printStackTrace();
@@ -75,10 +95,13 @@ public class App {
 	        LocalServerReceiver receiver =
 	            new LocalServerReceiver.Builder().setPort(LOCAL_RECEIVER_PORT).build();
 	        Credential credential = new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
+	        String refreshToken = credential.getRefreshToken();
+	        System.out.println(refreshToken);
+	        
 	        return UserCredentials.newBuilder()
 	            .setClientId(clientId)
 	            .setClientSecret(clientSecret)
-	            .setRefreshToken(credential.getRefreshToken())
+	            .setRefreshToken(refreshToken)
 	            .build();		
 	}
 }
