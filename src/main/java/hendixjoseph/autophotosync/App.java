@@ -49,14 +49,15 @@ public class App {
 		PhotosLibrarySettings settings =
 		     PhotosLibrarySettings.newBuilder()
 		    .setCredentialsProvider(
-		        FixedCredentialsProvider.create(getCredentials("C:\\Users\\hendr\\Downloads\\client_secret_778040209018-7uedralrtqesl99p0hqo1u8dfmk87hhv.apps.googleusercontent.com.json", REQUIRED_SCOPES)))
+		        FixedCredentialsProvider.create(getCredentials("C:\\Users\\hendr\\Downloads\\client_secret_778040209018-tnhdl3a1gvvcjuehvqd28ksr7mq3le3c.apps.googleusercontent.com.json", REQUIRED_SCOPES)))
 		    .build();
 
 		try (PhotosLibraryClient photosLibraryClient =
 		    PhotosLibraryClient.initialize(settings)) {
 			Date start = Date.newBuilder().setMonth(7).setDay(10).setYear(2019).build();
+			Date end = Date.newBuilder().setMonth(7).setDay(21).setYear(2019).build();
 			
-			DateRange dateRange = DateRange.newBuilder().setStartDate(start).build();
+			DateRange dateRange = DateRange.newBuilder().setStartDate(start).setEndDate(end).build();
 			DateFilter dateFilter = Filters.newBuilder().getDateFilterBuilder().addRanges(dateRange).build();
 			Filters filters = Filters.newBuilder().setDateFilter(dateFilter).build();
 			
