@@ -1,11 +1,8 @@
-
-
 package hendixjoseph.autophotosync;
 
-import java.io.File;
-import java.io.FileInputStream;
+import hendixjoseph.autophotosync.CredentialBuilder;
+
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.channels.Channels;
@@ -14,9 +11,6 @@ import java.nio.channels.ReadableByteChannel;
 import java.security.GeneralSecurityException;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Properties;
-
-import javax.swing.JFileChooser;
 
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.api.gax.rpc.ApiException;
@@ -35,36 +29,27 @@ public class AutoPhotoSync {
 	private static final List<String> REQUIRED_SCOPES =
 		      ImmutableList.of("https://www.googleapis.com/auth/photoslibrary.readonly");
 	
-	private static final File PROPERTY_FILE = new File("autophotosync.properties");
-	
+		
 	public static void main(String... args) throws IOException, GeneralSecurityException {		
 		AutoPhotoSync autoPhotoSync = new AutoPhotoSync();
 		autoPhotoSync.sync();
-		autoPhotoSync.updateDate();
 		autoPhotoSync.updatePropertiesFile();
 	}
 	
-	private final Properties props = new Properties();
 	private final PhotosLibrarySettings settings;
+	private final ApsProperties props = new ApsProperties();
 	
 	public AutoPhotoSync() throws IOException, GeneralSecurityException {
 		settings = PhotosLibrarySettings.newBuilder()
 			    .setCredentialsProvider(
 			        FixedCredentialsProvider.create(CredentialBuilder.getCredentials("client_secret_778040209018-tnhdl3a1gvvcjuehvqd28ksr7mq3le3c.apps.googleusercontent.com.json", REQUIRED_SCOPES)))
 			    .build();
-		
-		if (PROPERTY_FILE.exists()) {
-			props.load(new FileInputStream(PROPERTY_FILE));
-		} else {
-			props.setProperty("path", selectDirectory());
-			props.setProperty("lastDate", "2019-7-10");
-		}
 	}
 	
 	public void sync() {
 		try (PhotosLibraryClient photosLibraryClient = PhotosLibraryClient.initialize(settings)) {
 			
-			Date start = getDate(props.getProperty("lastDate"));
+			Date start = getDate(props.getLastDate());
 			Date end = getToday();
 			
 			Filters filters = getDateRangeFilter(start, end);
@@ -92,33 +77,10 @@ public class AutoPhotoSync {
 		}
 	}
 	
+	
 	public void updatePropertiesFile() throws IOException {
-		props.store(new FileWriter(PROPERTY_FILE), "AutoPhotoSync Properties");
-	}
-	
-	public void updateDate() {
-		Date today = getToday();
-		
-		String todayString = today.getYear() + "-" + today.getMonth() + "-" + today.getDay();
-		
-		props.setProperty("lastDate", todayString);
-	}
-	
-	private String selectDirectory() {
-	    JFileChooser chooser = new JFileChooser();
-	    chooser.setCurrentDirectory(new File("."));
-	    chooser.setDialogTitle("Please select a directory.");
-	    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-	    chooser.setAcceptAllFileFilterUsed(false);
-	    int option = chooser.showOpenDialog(null);
-	    
-	    if (option == JFileChooser.APPROVE_OPTION) {
-	    	File chosenDirectory = chooser.getSelectedFile();
-	    	return chosenDirectory.getAbsolutePath();
-	    } else {
-	    	System.exit(0);
-	    	return ""; // we'll never get here
-	    }
+		props.updateDate();
+		props.updateFile();		
 	}
 	
 	private Filters getDateRangeFilter(Date start, Date end) {
@@ -130,7 +92,7 @@ public class AutoPhotoSync {
 	private void write(String baseUrl, String filename) throws IOException {
 		URL url = new URL(baseUrl);
 		ReadableByteChannel readableByteChannel = Channels.newChannel(url.openStream());
-		FileOutputStream fileOutputStream = new FileOutputStream(props.getProperty("path") + "/" + filename);
+		FileOutputStream fileOutputStream = new FileOutputStream(props.getPath() + "/" + filename);
 		FileChannel fileChannel = fileOutputStream.getChannel();
 		fileChannel.transferFrom(readableByteChannel, 0, Long.MAX_VALUE);
 		fileOutputStream.close();
