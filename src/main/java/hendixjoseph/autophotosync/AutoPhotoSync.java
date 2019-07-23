@@ -16,6 +16,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Properties;
 
+import javax.swing.JFileChooser;
+
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.api.gax.rpc.ApiException;
 import com.google.common.collect.ImmutableList;
@@ -48,13 +50,13 @@ public class AutoPhotoSync {
 	public AutoPhotoSync() throws IOException, GeneralSecurityException {
 		settings = PhotosLibrarySettings.newBuilder()
 			    .setCredentialsProvider(
-			        FixedCredentialsProvider.create(CredentialBuilder.getCredentials("C:\\Users\\hendr\\Downloads\\client_secret_778040209018-tnhdl3a1gvvcjuehvqd28ksr7mq3le3c.apps.googleusercontent.com.json", REQUIRED_SCOPES)))
+			        FixedCredentialsProvider.create(CredentialBuilder.getCredentials("client_secret_778040209018-tnhdl3a1gvvcjuehvqd28ksr7mq3le3c.apps.googleusercontent.com.json", REQUIRED_SCOPES)))
 			    .build();
 		
 		if (PROPERTY_FILE.exists()) {
 			props.load(new FileInputStream(PROPERTY_FILE));
 		} else {
-			props.setProperty("path", "files/");
+			props.setProperty("path", selectDirectory());
 			props.setProperty("lastDate", "2019-7-10");
 		}
 	}
@@ -102,6 +104,23 @@ public class AutoPhotoSync {
 		props.setProperty("lastDate", todayString);
 	}
 	
+	private String selectDirectory() {
+	    JFileChooser chooser = new JFileChooser();
+	    chooser.setCurrentDirectory(new File("."));
+	    chooser.setDialogTitle("Please select a directory.");
+	    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+	    chooser.setAcceptAllFileFilterUsed(false);
+	    int option = chooser.showOpenDialog(null);
+	    
+	    if (option == JFileChooser.APPROVE_OPTION) {
+	    	File chosenDirectory = chooser.getSelectedFile();
+	    	return chosenDirectory.getAbsolutePath();
+	    } else {
+	    	System.exit(0);
+	    	return ""; // we'll never get here
+	    }
+	}
+	
 	private Filters getDateRangeFilter(Date start, Date end) {
 		DateRange dateRange = DateRange.newBuilder().setStartDate(start).setEndDate(end).build();
 		DateFilter dateFilter = Filters.newBuilder().getDateFilterBuilder().addRanges(dateRange).build();
@@ -111,7 +130,7 @@ public class AutoPhotoSync {
 	private void write(String baseUrl, String filename) throws IOException {
 		URL url = new URL(baseUrl);
 		ReadableByteChannel readableByteChannel = Channels.newChannel(url.openStream());
-		FileOutputStream fileOutputStream = new FileOutputStream(props.getProperty("path") + filename);
+		FileOutputStream fileOutputStream = new FileOutputStream(props.getProperty("path") + "/" + filename);
 		FileChannel fileChannel = fileOutputStream.getChannel();
 		fileChannel.transferFrom(readableByteChannel, 0, Long.MAX_VALUE);
 		fileOutputStream.close();
