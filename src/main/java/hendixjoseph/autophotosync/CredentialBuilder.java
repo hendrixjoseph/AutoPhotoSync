@@ -19,7 +19,7 @@ import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.UserCredentials;
 
-public class CredentialBuilder {
+public final class CredentialBuilder {
 	private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 	private static final File DATA_STORE_DIR = new File(CredentialBuilder.class.getResource("/").getPath(), "credentials");
 	private static final int LOCAL_RECEIVER_PORT = 61984;
@@ -44,7 +44,6 @@ public class CredentialBuilder {
 	            new LocalServerReceiver.Builder().setPort(LOCAL_RECEIVER_PORT).build();
 	        Credential credential = new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
 	        String refreshToken = credential.getRefreshToken();
-	        System.out.println(refreshToken);
 	        
 	        return UserCredentials.newBuilder()
 	            .setClientId(clientId)
