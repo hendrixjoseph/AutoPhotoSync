@@ -4,4 +4,5 @@
 /target/
 /autophotosync.properties
 /files
-/*.json
+*.json
+!example-secret-file.json
