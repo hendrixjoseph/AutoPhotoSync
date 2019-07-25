@@ -29,13 +29,7 @@ public class AutoPhotoSync {
 	private static final List<String> REQUIRED_SCOPES =
 		      ImmutableList.of("https://www.googleapis.com/auth/photoslibrary.readonly");
 	
-		
-	public static void main(String... args) throws IOException, GeneralSecurityException {		
-		AutoPhotoSync autoPhotoSync = new AutoPhotoSync();
-		autoPhotoSync.sync();
-		autoPhotoSync.updatePropertiesFile();
-	}
-	
+	private final PhotosLibraryClient photosLibraryClient;
 	private final PhotosLibrarySettings settings;
 	private final ApsProperties props = new ApsProperties();
 	
@@ -44,11 +38,12 @@ public class AutoPhotoSync {
 			    .setCredentialsProvider(
 			        FixedCredentialsProvider.create(CredentialBuilder.getCredentials("client_secret_778040209018-tnhdl3a1gvvcjuehvqd28ksr7mq3le3c.apps.googleusercontent.com.json", REQUIRED_SCOPES)))
 			    .build();
+		
+		photosLibraryClient = PhotosLibraryClient.initialize(settings);
 	}
 	
 	public void sync() {
-		try (PhotosLibraryClient photosLibraryClient = PhotosLibraryClient.initialize(settings)) {
-			
+		try {			
 			Date start = getDate(props.getLastDate());
 			Date end = getToday();
 			
@@ -77,6 +72,9 @@ public class AutoPhotoSync {
 		}
 	}
 	
+	public void disconnect() {
+		photosLibraryClient.close();
+	}
 	
 	public void updatePropertiesFile() throws IOException {
 		props.updateDate();
