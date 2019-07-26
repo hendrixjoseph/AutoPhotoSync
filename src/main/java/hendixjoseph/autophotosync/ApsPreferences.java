@@ -37,7 +37,7 @@ public class ApsPreferences {
 	}
 
 	public String getPath() {
-		return prefs.get(PATH, "/");
+		return prefs.get(PATH, "/") +  File.separator;
 	}
 
 	private String selectDirectory() {

@@ -20,6 +20,8 @@ import com.google.photos.library.v1.proto.DateFilter;
 import com.google.photos.library.v1.proto.Filters;
 import com.google.photos.types.proto.DateRange;
 import com.google.photos.types.proto.MediaItem;
+import com.google.protobuf.Timestamp;
+import com.google.protobuf.util.Timestamps;
 import com.google.type.Date;
 
 public class AutoPhotoSync {
@@ -50,18 +52,20 @@ public class AutoPhotoSync {
 
 		for (MediaItem item : response.iterateAll()) {
 			String mimeType = item.getMimeType();
-			String filename = item.getFilename();
 			String baseUrl = item.getBaseUrl();
+			String filename = getFullDownloadPath(item);
 
-			if (mimeType.startsWith("image")) {
-				baseUrl = baseUrl + "=w2048-h1024";
-			} else if (mimeType.startsWith("video")) {
-				baseUrl = baseUrl + "=dv";
-			} else {
-				continue;
+			if (!fileExists(filename)) {
+				if (mimeType.startsWith("image")) {
+					baseUrl = baseUrl + "=w2048-h1024";
+				} else if (mimeType.startsWith("video")) {
+					baseUrl = baseUrl + "=dv";
+				} else {
+					continue;
+				}
+
+				write(baseUrl, filename);
 			}
-
-			write(baseUrl, filename);
 		}
 	}
 
@@ -73,16 +77,42 @@ public class AutoPhotoSync {
 		prefs.updateDate();
 	}
 
+	private String getFullDownloadPath(MediaItem item) {
+		String filename;
+
+		if (item.hasMediaMetadata() && item.getMediaMetadata().hasCreationTime()) {
+			Timestamp timestamp = item.getMediaMetadata().getCreationTime();
+			String year = Timestamps.toString(timestamp).substring(0, 4);
+
+			File newDir = new File(prefs.getPath() + year);
+
+			if (!newDir.exists()) {
+				newDir.mkdir();
+			}
+
+			filename = prefs.getPath() + year + File.separator + item.getFilename();
+		} else {
+			filename = prefs.getPath() + item.getFilename();
+		}
+
+		return filename;
+	}
+
 	private Filters getDateRangeFilter(Date start, Date end) {
 		DateRange dateRange = DateRange.newBuilder().setStartDate(start).setEndDate(end).build();
 		DateFilter dateFilter = Filters.newBuilder().getDateFilterBuilder().addRanges(dateRange).build();
 		return Filters.newBuilder().setDateFilter(dateFilter).build();
 	}
 
+	private boolean fileExists(String filename) {
+		File file = new File(filename);
+		return file.exists();
+	}
+
 	private void write(String baseUrl, String filename) throws IOException {
 		URL url = new URL(baseUrl);
 		ReadableByteChannel readableByteChannel = Channels.newChannel(url.openStream());
-		FileOutputStream fileOutputStream = new FileOutputStream(prefs.getPath() + File.separator + filename);
+		FileOutputStream fileOutputStream = new FileOutputStream(filename);
 		FileChannel fileChannel = fileOutputStream.getChannel();
 		fileChannel.transferFrom(readableByteChannel, 0, Long.MAX_VALUE);
 		fileOutputStream.close();

@@ -8,7 +8,6 @@ import java.awt.SystemTray;
 import java.awt.TrayIcon;
 import java.awt.TrayIcon.MessageType;
 import java.awt.event.ActionListener;
-import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.prefs.BackingStoreException;
@@ -38,7 +37,7 @@ public class ApsTray {
 			addMenuItem("Sync Now", (e) -> sync());
 			addMenuItem("Close", (e) -> close());
 
-			Image image = ImageIO.read(new File("bulb.gif"));
+			Image image = ImageIO.read(ApsTray.class.getResource("bulb.gif"));
 
 			trayIcon = new TrayIcon(image, AUTO_PHOTO_SYNC, menu);
 			tray.add(trayIcon);
