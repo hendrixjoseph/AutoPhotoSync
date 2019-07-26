@@ -23,32 +23,32 @@ public final class CredentialBuilder {
 	private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 	private static final File DATA_STORE_DIR = new File(CredentialBuilder.class.getResource("/").getPath(), "credentials");
 	private static final int LOCAL_RECEIVER_PORT = 61984;
-	
-	public static Credentials getCredentials(String credentialsPath, List<String> selectedScopes) throws IOException, GeneralSecurityException {
-	    GoogleClientSecrets clientSecrets =
-	            GoogleClientSecrets.load(
-	                JSON_FACTORY, new InputStreamReader(new FileInputStream(credentialsPath)));
-	        String clientId = clientSecrets.getDetails().getClientId();
-	        String clientSecret = clientSecrets.getDetails().getClientSecret();
 
-	        GoogleAuthorizationCodeFlow flow =
-	            new GoogleAuthorizationCodeFlow.Builder(
-	                    GoogleNetHttpTransport.newTrustedTransport(),
-	                    JSON_FACTORY,
-	                    clientSecrets,
-	                    selectedScopes)
-	                .setDataStoreFactory(new FileDataStoreFactory(DATA_STORE_DIR))
-	                .setAccessType("offline")
-	                .build();
-	        LocalServerReceiver receiver =
-	            new LocalServerReceiver.Builder().setPort(LOCAL_RECEIVER_PORT).build();
-	        Credential credential = new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
-	        String refreshToken = credential.getRefreshToken();
-	        
-	        return UserCredentials.newBuilder()
-	            .setClientId(clientId)
-	            .setClientSecret(clientSecret)
-	            .setRefreshToken(refreshToken)
-	            .build();		
+	public static Credentials getCredentials(String credentialsPath, List<String> selectedScopes) throws IOException, GeneralSecurityException {
+		GoogleClientSecrets clientSecrets =
+				GoogleClientSecrets.load(
+						JSON_FACTORY, new InputStreamReader(new FileInputStream(credentialsPath)));
+		String clientId = clientSecrets.getDetails().getClientId();
+		String clientSecret = clientSecrets.getDetails().getClientSecret();
+
+		GoogleAuthorizationCodeFlow flow =
+				new GoogleAuthorizationCodeFlow.Builder(
+						GoogleNetHttpTransport.newTrustedTransport(),
+						JSON_FACTORY,
+						clientSecrets,
+						selectedScopes)
+				.setDataStoreFactory(new FileDataStoreFactory(DATA_STORE_DIR))
+				.setAccessType("offline")
+				.build();
+		LocalServerReceiver receiver =
+				new LocalServerReceiver.Builder().setPort(LOCAL_RECEIVER_PORT).build();
+		Credential credential = new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
+		String refreshToken = credential.getRefreshToken();
+
+		return UserCredentials.newBuilder()
+				.setClientId(clientId)
+				.setClientSecret(clientSecret)
+				.setRefreshToken(refreshToken)
+				.build();
 	}
 }
