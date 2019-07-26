@@ -2,6 +2,7 @@ package hendixjoseph.autophotosync;
 
 import hendixjoseph.autophotosync.CredentialBuilder;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
@@ -31,7 +32,7 @@ public class AutoPhotoSync {
 	
 	private final PhotosLibraryClient photosLibraryClient;
 	private final PhotosLibrarySettings settings;
-	private final ApsProperties props = new ApsProperties();
+	private final ApsPreferences prefs = new ApsPreferences();
 	
 	public AutoPhotoSync() throws IOException, GeneralSecurityException {
 		settings = PhotosLibrarySettings.newBuilder()
@@ -44,7 +45,7 @@ public class AutoPhotoSync {
 	
 	public void sync() {
 		try {			
-			Date start = getDate(props.getLastDate());
+			Date start = getDate(prefs.getLastDate());
 			Date end = getToday();
 			
 			Filters filters = getDateRangeFilter(start, end);
@@ -76,9 +77,8 @@ public class AutoPhotoSync {
 		photosLibraryClient.close();
 	}
 	
-	public void updatePropertiesFile() throws IOException {
-		props.updateDate();
-		props.updateFile();		
+	public void updateDate() {
+		prefs.updateDate();	
 	}
 	
 	private Filters getDateRangeFilter(Date start, Date end) {
@@ -90,7 +90,7 @@ public class AutoPhotoSync {
 	private void write(String baseUrl, String filename) throws IOException {
 		URL url = new URL(baseUrl);
 		ReadableByteChannel readableByteChannel = Channels.newChannel(url.openStream());
-		FileOutputStream fileOutputStream = new FileOutputStream(props.getPath() + "/" + filename);
+		FileOutputStream fileOutputStream = new FileOutputStream(prefs.getPath() + File.separator + filename);
 		FileChannel fileChannel = fileOutputStream.getChannel();
 		fileChannel.transferFrom(readableByteChannel, 0, Long.MAX_VALUE);
 		fileOutputStream.close();

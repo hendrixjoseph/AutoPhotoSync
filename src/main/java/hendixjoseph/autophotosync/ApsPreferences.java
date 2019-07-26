@@ -7,25 +7,22 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Properties;
+import java.util.prefs.Preferences;
 
 import javax.swing.JFileChooser;
 
-public class ApsProperties {
+public class ApsPreferences {
 
-	private final Properties props = new Properties();
-	private final File propertyFile = new File("autophotosync.properties");
+	private final static String PATH = "path";
+	private final static String LAST_DATE = "lastDate";
 	
-	public ApsProperties() throws FileNotFoundException, IOException {
-		if (propertyFile.exists()) {
-			props.load(new FileInputStream(propertyFile));
-		} else {
-			props.setProperty("path", selectDirectory());
-			props.setProperty("lastDate", "2019-7-10");
+	private final Preferences prefs = Preferences.userRoot().node("hendrixjoseph/autophotosync");
+
+	
+	public ApsPreferences() {
+		if (prefs.get(PATH, null) == null) {
+			prefs.put(PATH, selectDirectory());
 		}
-	}
-	
-	public void updateFile() throws IOException {
-		props.store(new FileWriter(propertyFile), "AutoPhotoSync Properties");
 	}
 	
 	public void updateDate() {
@@ -37,15 +34,15 @@ public class ApsProperties {
 		
 		String todayString = year + "-" + month + "-" + day;
 		
-		props.setProperty("lastDate", todayString);
+		prefs.put(LAST_DATE, todayString);
 	}
 	
 	public String getLastDate() {
-		return props.getProperty("lastDate");
+		return prefs.get(LAST_DATE, "2019-07-10");
 	}
 	
 	public String getPath() {
-		return props.getProperty("path");
+		return prefs.get(PATH, "/");
 	}
 	
 	private String selectDirectory() {

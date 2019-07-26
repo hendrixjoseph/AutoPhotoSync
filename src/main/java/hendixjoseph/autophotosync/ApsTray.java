@@ -11,14 +11,16 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
 
 import javax.imageio.ImageIO;
 
-public class Tray {
-
-	public static void main(String... args) {
+public class ApsTray {
+	
+	public static void main(String... args) throws BackingStoreException {		
 		try {
-			new Tray();
+			new ApsTray();
 		} catch (IOException | AWTException | GeneralSecurityException e) {
 			e.printStackTrace();
 		}
@@ -28,11 +30,11 @@ public class Tray {
 	private final PopupMenu menu = new PopupMenu();
 	private final TrayIcon trayIcon;
 	
-	public Tray() throws AWTException, GeneralSecurityException, IOException {
+	public ApsTray() throws AWTException, GeneralSecurityException, IOException {
 		if (SystemTray.isSupported()) {
 			SystemTray tray = SystemTray.getSystemTray();
 			
-			addMenuItem("Sync", (e) -> sync());
+			addMenuItem("Sync Now", (e) -> sync());
 			addMenuItem("Close", (e) -> close());
 			
 			Image image = ImageIO.read(new File("bulb.gif"));	
@@ -50,15 +52,10 @@ public class Tray {
 		menu.add(item);
 	}
 	
-	private void sync() {
-		try {			
-			autoPhotoSync.sync();
-			autoPhotoSync.updatePropertiesFile();
-			trayIcon.displayMessage("AutoPhotoSync", "Sync complete", MessageType.INFO);
-		} catch (IOException e) {
-			trayIcon.displayMessage("AutoPhotoSync", "Sync complete. Error updating properties file.", MessageType.ERROR);
-			e.printStackTrace();
-		}
+	private void sync() {		
+		autoPhotoSync.sync();
+		autoPhotoSync.updateDate();
+		trayIcon.displayMessage("AutoPhotoSync", "Sync complete", MessageType.INFO);
 	}
 	
 	private void close() {
