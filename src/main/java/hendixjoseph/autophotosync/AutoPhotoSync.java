@@ -42,9 +42,10 @@ public class AutoPhotoSync {
 		photosLibraryClient = PhotosLibraryClient.initialize(settings);
 	}
 
-	public void sync() throws IOException {
+	public int sync() throws IOException {
 		Date start = getDate(prefs.getLastDate());
 		Date end = getToday();
+		int count = 0;
 
 		Filters filters = getDateRangeFilter(start, end);
 
@@ -65,8 +66,11 @@ public class AutoPhotoSync {
 				}
 
 				write(baseUrl, filename);
+				count++;
 			}
 		}
+
+		return count;
 	}
 
 	public void disconnect() {
@@ -75,6 +79,10 @@ public class AutoPhotoSync {
 
 	public void updateDate() {
 		prefs.updateDate();
+	}
+
+	public String getLastDate() {
+		return prefs.getLastDate();
 	}
 
 	private String getFullDownloadPath(MediaItem item) {

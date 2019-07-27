@@ -10,6 +10,9 @@ import java.awt.TrayIcon.MessageType;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.prefs.BackingStoreException;
 
 import javax.imageio.ImageIO;
@@ -20,12 +23,14 @@ public class ApsTray {
 
 	public static void main(String... args) throws BackingStoreException {
 		try {
-			new ApsTray();
+			ApsTray apsTray = new ApsTray();
+			apsTray.start();
 		} catch (IOException | AWTException | GeneralSecurityException e) {
 			e.printStackTrace();
 		}
 	}
 
+	private final ScheduledExecutorService timer = new ScheduledThreadPoolExecutor(0);
 	private final AutoPhotoSync autoPhotoSync = new AutoPhotoSync();
 	private final PopupMenu menu = new PopupMenu();
 	private final TrayIcon trayIcon;
@@ -52,17 +57,23 @@ public class ApsTray {
 		menu.add(item);
 	}
 
+	public void start() {
+		timer.scheduleAtFixedRate(() -> sync(), 0, 1, TimeUnit.DAYS);
+	}
+
 	private void sync() {
 		try {
-			autoPhotoSync.sync();
+			int count = autoPhotoSync.sync();
 			autoPhotoSync.updateDate();
-			trayIcon.displayMessage(AUTO_PHOTO_SYNC, "Sync complete", MessageType.INFO);
+			trayIcon.displayMessage(AUTO_PHOTO_SYNC, "Sync complete. " + count + " files synced.", MessageType.INFO);
+			trayIcon.setToolTip(AUTO_PHOTO_SYNC + " - last sync on " + autoPhotoSync.getLastDate() + ".");
 		} catch (IOException e) {
 			trayIcon.displayMessage(AUTO_PHOTO_SYNC, "Error writing to file while syncing", MessageType.ERROR);
 		}
 	}
 
 	private void close() {
+		timer.shutdown();
 		autoPhotoSync.disconnect();
 		System.exit(0);
 	}
