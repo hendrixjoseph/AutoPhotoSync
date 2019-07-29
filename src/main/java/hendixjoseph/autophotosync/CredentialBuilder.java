@@ -3,6 +3,7 @@ package hendixjoseph.autophotosync;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.GeneralSecurityException;
 import java.util.List;
@@ -25,9 +26,13 @@ public final class CredentialBuilder {
 	private static final int LOCAL_RECEIVER_PORT = 61984;
 
 	public static Credentials getCredentials(String credentialsPath, List<String> selectedScopes) throws IOException, GeneralSecurityException {
+		return getCredentials(new FileInputStream(credentialsPath), selectedScopes);
+	}
+
+	public static Credentials getCredentials(InputStream credentialsStream, List<String> selectedScopes) throws IOException, GeneralSecurityException {
 		GoogleClientSecrets clientSecrets =
 				GoogleClientSecrets.load(
-						JSON_FACTORY, new InputStreamReader(new FileInputStream(credentialsPath)));
+						JSON_FACTORY, new InputStreamReader(credentialsStream));
 		String clientId = clientSecrets.getDetails().getClientId();
 		String clientSecret = clientSecrets.getDetails().getClientSecret();
 

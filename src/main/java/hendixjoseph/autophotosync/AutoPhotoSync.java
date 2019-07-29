@@ -3,6 +3,7 @@ package hendixjoseph.autophotosync;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
@@ -26,6 +27,7 @@ import com.google.type.Date;
 
 public class AutoPhotoSync {
 
+	private static final String JSON_FILE = "client_secret_778040209018-tnhdl3a1gvvcjuehvqd28ksr7mq3le3c.apps.googleusercontent.com.json";
 	private static final List<String> REQUIRED_SCOPES =
 			ImmutableList.of("https://www.googleapis.com/auth/photoslibrary.readonly");
 
@@ -34,9 +36,11 @@ public class AutoPhotoSync {
 	private final ApsPreferences prefs = new ApsPreferences();
 
 	public AutoPhotoSync() throws IOException, GeneralSecurityException {
+		InputStream credentialsStream = AutoPhotoSync.class.getResourceAsStream(JSON_FILE);
+
 		settings = PhotosLibrarySettings.newBuilder()
 				.setCredentialsProvider(
-						FixedCredentialsProvider.create(CredentialBuilder.getCredentials("client_secret_778040209018-tnhdl3a1gvvcjuehvqd28ksr7mq3le3c.apps.googleusercontent.com.json", REQUIRED_SCOPES)))
+						FixedCredentialsProvider.create(CredentialBuilder.getCredentials(credentialsStream, REQUIRED_SCOPES)))
 				.build();
 
 		photosLibraryClient = PhotosLibraryClient.initialize(settings);
