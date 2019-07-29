@@ -44,7 +44,7 @@ public class ApsTray {
 
 			Image image = ImageIO.read(ApsTray.class.getResource("bulb.gif"));
 
-			trayIcon = new TrayIcon(image, AUTO_PHOTO_SYNC, menu);
+			trayIcon = new TrayIcon(image, getToolTip(), menu);
 			tray.add(trayIcon);
 		} else {
 			trayIcon = null; // Maybe throw exception instead?
@@ -61,12 +61,16 @@ public class ApsTray {
 		timer.scheduleAtFixedRate(() -> sync(), 0, 1, TimeUnit.DAYS);
 	}
 
+	private String getToolTip() {
+		return autoPhotoSync.getLastTime().isEmpty() ? AUTO_PHOTO_SYNC : String.format("%s - last sync on %s.", AUTO_PHOTO_SYNC, autoPhotoSync.getLastTime());
+	}
+
 	private void sync() {
 		try {
 			int count = autoPhotoSync.sync();
 			autoPhotoSync.updateDate();
-			trayIcon.displayMessage(AUTO_PHOTO_SYNC, "Sync complete. " + count + " files synced.", MessageType.INFO);
-			trayIcon.setToolTip(AUTO_PHOTO_SYNC + " - last sync on " + autoPhotoSync.getLastDate() + ".");
+			trayIcon.displayMessage(AUTO_PHOTO_SYNC, String.format("Sync complete. %d files synced.", count), MessageType.INFO);
+			trayIcon.setToolTip(getToolTip());
 		} catch (IOException e) {
 			trayIcon.displayMessage(AUTO_PHOTO_SYNC, "Error writing to file while syncing", MessageType.ERROR);
 		}

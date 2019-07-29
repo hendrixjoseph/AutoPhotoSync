@@ -81,8 +81,8 @@ public class AutoPhotoSync {
 		prefs.updateDate();
 	}
 
-	public String getLastDate() {
-		return prefs.getLastDate();
+	public String getLastTime() {
+		return prefs.getLastTime();
 	}
 
 	private String getFullDownloadPath(MediaItem item) {
