@@ -42,7 +42,7 @@ public class ApsTray {
 			addMenuItem("Sync Now", (e) -> sync());
 			addMenuItem("Close", (e) -> close());
 
-			Image image = ImageIO.read(ApsTray.class.getResource("bulb.gif"));
+			Image image = ImageIO.read(ApsTray.class.getResourceAsStream("bulb.gif"));
 
 			trayIcon = new TrayIcon(image, getToolTip(), menu);
 			tray.add(trayIcon);

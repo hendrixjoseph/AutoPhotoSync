@@ -72,7 +72,7 @@
 					</descriptorRefs>
 					<archive>
 						<manifest>
-							<mainClass>hendixjoseph.autophotosync.AutoPhotoSyncn</mainClass>
+							<mainClass>hendixjoseph.autophotosync.ApsTray</mainClass>
 						</manifest>
 					</archive>
 				</configuration>

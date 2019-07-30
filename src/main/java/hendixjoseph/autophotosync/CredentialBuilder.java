@@ -22,7 +22,7 @@ import com.google.auth.oauth2.UserCredentials;
 
 public final class CredentialBuilder {
 	private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
-	private static final File DATA_STORE_DIR = new File(CredentialBuilder.class.getResource("/").getPath(), "credentials");
+	private static final File DATA_STORE_DIR = new File(System.getProperty("user.home"), "credentials");
 	private static final int LOCAL_RECEIVER_PORT = 61984;
 
 	public static Credentials getCredentials(String credentialsPath, List<String> selectedScopes) throws IOException, GeneralSecurityException {
