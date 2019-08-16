@@ -1,10 +1,12 @@
 # AutoPhotoSync for Google Photos
 
-AutoPhotoSync only uses Google's `photoslibrary.readonly`  scope. It does not need, nor should have, scopes for anything other than photos, or write and delete access. If the user consent screen indicates otherwise, do not authorize AutoPhotoSync.
+AutoPhotoSync is a desktop Java application. It runs in the system tray (known as the Notification Area in Windows) with a simplistic GUI.
 
-AutoPhotoSync is a native (Java) application that provides local sync or automatic backup of users’ Photo files.
+When first run, it will ask where you want to save your photos. Then it will run its first syncronizing task - syncing all images in your Google Photo account since July 10, 2019. It will then sync new photos every 24 hours.
 
-AutoPhotoSync does not collect or submit end-user data, private or otherwise. It only downloads users' photos to a local directory.
+If somehow AutoPhotoSync closes, it will syncronize once the program is run again, and then sync again every 24 hours.
+
+Syncing can be forced by selecting the Sync Now option in the right-click menu.
 
 It uses the [Java Preferences API](https://docs.oracle.com/javase/8/docs/technotes/guides/preferences/index.html) to store user preferences. Currently, this includes only the download path, last sync date, and last sync time.
 
