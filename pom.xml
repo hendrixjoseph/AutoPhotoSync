@@ -10,10 +10,32 @@
 
 	<name>autophotosync</name>
 	<url>https://github.com/hendrixjoseph/AutoPhotoSync</url>
+	<inceptionYear>2019</inceptionYear>
+	
+    	<scm>
+        	<url>https://github.com/hendrixjoseph/AutoPhotoSync</url>
+        	<connection>scm:git:https://github.com/hendrixjoseph/AutoPhotoSync.git</connection>
+        	<developerConnection>scm:git:https://github.com/hendrixjoseph/AutoPhotoSync.git</developerConnection>
+	</scm>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
+	
+     <developers>
+        <developer>
+	    <name>Joseph Hendrix</name>
+            <url>https://www.joehxblog.com/</url>
+            <roles>
+                <role>sole developer</role>
+            </roles>
+        </developer>
+    </developers>
+
+    <issueManagement>
+        <url>https://github.com/hendrixjoseph/AutoPhotoSync/issues</url>
+        <system>GitHub Issues</system>
+    </issueManagement>
 
 	<build>
 		<plugins>
