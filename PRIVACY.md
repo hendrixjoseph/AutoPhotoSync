@@ -10,4 +10,4 @@ It does not need, have, or use scopes for anything other than photos.
 
 AutoPhotoSync is a native (Java) application that provides local sync or automatic backup of users’ Photo files.
 
-AutoPhotoSync does not collect or submit end-user data, private or otherwise. It only downloads the user's photos to a local directory.
+AutoPhotoSync does not collect or submit end-user data, private or otherwise. It only downloads the user's Google Photos to a local directory.
